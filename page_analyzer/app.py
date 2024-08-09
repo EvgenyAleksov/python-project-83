@@ -1,6 +1,6 @@
 import os
 
-from python import load_dotenv
+from dotenv import load_dotenv
 from flask import Flask
 
 
