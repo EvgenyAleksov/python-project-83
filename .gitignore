@@ -1,0 +1,4 @@
+.venv/
+setup.cfg'Zone:Identifier
+dist/
+__pycache__
