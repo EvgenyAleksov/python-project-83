@@ -5,4 +5,5 @@
 [![Maintainability](https://api.codeclimate.com/v1/badges/4fabaa424b81c8bc239e/maintainability)](https://codeclimate.com/github/EvgenyAleksov/python-project-83/maintainability)
 
 
-[![Actions Status](https://github.com/EvgenyAleksov/EvgenyAleksov/python-project-83/actions/workflows/pyci.yml/badge.svg)](https://github.com/EvgenyAleksov/python-project-83/actions)
+[![Actions Status](https://github.com/EvgenyAleksov/python-project-83/actions/workflows/pyci.yml/badge.svg)](https://github.com/EvgenyAleksov/python-project-83/actions)
+
