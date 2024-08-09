@@ -1,4 +1,5 @@
 .venv/
-setup.cfg'Zone:Identifier
 dist/
 __pycache__
+setup.cfg'Zone:Identifier
+pyci.yml'Zone.Identifier
