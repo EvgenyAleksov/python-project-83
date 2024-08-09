@@ -1,9 +1,7 @@
 import os
-# import psycopg2
-# import requests
 
-from flask import Flask
 from dotenv import load_dotenv
+from flask import Flask, render_template
 
 
 load_dotenv()
