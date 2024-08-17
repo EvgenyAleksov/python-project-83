@@ -1,5 +1,8 @@
-.venv/
-dist/
+*.egg-info
 __pycache__
-setup.cfg'Zone:Identifier
-pyci.yml'Zone.Identifier
+dist/
+*.pyc
+.venv/
+.coverage
+.pytest_cache/
+
