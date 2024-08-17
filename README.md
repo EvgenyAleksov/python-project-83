@@ -8,5 +8,4 @@
 [![Actions Status](https://github.com/EvgenyAleksov/python-project-83/actions/workflows/pyci.yml/badge.svg)](https://github.com/EvgenyAleksov/python-project-83/actions)
 
 
-#[Посмотреть на render.com](https://python-project-83-fcn0.onrender.com/)
-<a href="https://python-project-83-fcn0.onrender.com/" target="_blank">Link</a>
+<a href="https://python-project-83-fcn0.onrender.com/" target="_blank">[Посмотреть на render.com</a>
