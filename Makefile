@@ -1,8 +1,8 @@
 install:
 	poetry install
 
-# dev:
-#	poetry run flask --app page_analyzer:app --debug run
+make dev:
+	poetry run flask --app page_analyzer:app --debug run --port 8000
 
 PORT ?= 8000
 start:
@@ -13,6 +13,3 @@ build:
 
 lint:
 	poetry run flake8 page_analyzer
-
-make start:
-	poetry run flask --app page_analyzer:app --debug run --port 8000
