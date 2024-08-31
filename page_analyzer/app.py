@@ -1,7 +1,7 @@
 import os
 import psycopg2
 import validators
-import requests
+# import requests
 
 from flask import Flask, render_template
 from flask import flash, redirect, url_for, request
@@ -98,16 +98,12 @@ def find_all_urls():
                 ORDER BY urls.id DESC;"
             )
             urls.extend(cursor.fetchall())
-
     return urls
 
 
 @app.route('/urls/<int:id>', methods=['GET'])
 def one_url(id: int):
     url = find_by_id(id)
-    if url is None:
-        flash('Такой страницы не существует', 'alert-warning')
-        return redirect(url_for('index'))
     return render_template('show.html', ID=id, name=url.name,
                            created_at=url.created_at,
                            checks=find_checks(id))
@@ -129,18 +125,3 @@ def find_checks(url_id: int):
                            (url_id, ))
             url_checks.extend(cursor.fetchall())
     return url_checks
-
-
-@app.route('/urls/<int:id>/checks', methods=['POST'])
-def check_url(id: int):
-    url = find_by_id(id)
-    try:
-        with requests.get(url.name) as response:
-            response.raise_for_status()
-
-    except requests.exceptions.RequestException:
-        flash('Ошибка при проверке', 'alert-danger')
-        return render_template('show.html', ID=id, name=url.name,
-                               created_at=url.created_at,
-                               checks=find_checks(id)), 422
-    return redirect(url_for('one_url', id=id))
