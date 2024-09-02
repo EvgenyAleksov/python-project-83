@@ -13,3 +13,7 @@ build:
 
 lint:
 	poetry run flake8 page_analyzer
+
+start command:
+	database.sql	
+
