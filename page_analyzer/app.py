@@ -146,10 +146,7 @@ def check_url(id: int):
     return redirect(url_for('one_url', id=id))
 
 
-# def find_checks(url_id: int):
-
-
-def find_checks(url_id: int) -> list[tuple[int, str, datetime]]:
+def find_checks(url_id: int):
     url_checks = []
 
     with get_connected() as connection:
