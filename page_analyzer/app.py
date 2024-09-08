@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 from datetime import datetime
 from psycopg2.extras import NamedTupleCursor
 from urllib.parse import urlparse
+from bs4 import BeautifulSoup
 
 MAX_URL_LEN = 255
 
@@ -135,12 +136,15 @@ def check_url(id: int):
                                created_at=url.created_at,
                                checks=find_checks(id)), 422
 
+    h1, title, description = get_seo_data(
+        BeautifulSoup(response.text, 'html.parser'))
+
     with get_connected() as connection:
         with connection.cursor() as cursor:
             cursor.execute("INSERT INTO url_checks (url_id, status_code,\
-                            created_at)\
-                            VALUES (%s, %s, %s)",
-                           (id, status_code,
+                            h1, title, description, created_at)\
+                            VALUES (%s, %s, %s, %s, %s, %s)",
+                           (id, status_code, h1, title, description,
                             datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
 
             flash('Страница успешно проверена', 'alert-success')
@@ -159,3 +163,13 @@ def find_checks(url_id: int):
             url_checks.extend(cursor.fetchall())
 
     return url_checks
+
+
+def get_seo_data(html: object) -> tuple[str]:
+    h1 = html.h1.get_text() if html.h1 else ''
+    title = html.title.get_text() if html.title else ''
+
+    description = html.find('meta', {'name': 'description'})
+    content = description['content'] if description else ''
+
+    return h1, title, content
