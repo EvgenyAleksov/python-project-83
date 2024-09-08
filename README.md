@@ -8,12 +8,13 @@
 [![Actions Status](https://github.com/EvgenyAleksov/python-project-83/actions/workflows/pyci.yml/badge.svg)](https://github.com/EvgenyAleksov/python-project-83/actions)
 
 
-[Посмотреть на render.com](https://python-project-83-fcn0.onrender.com/)
 
-
-# Проект Вычислитель отличий
+# Анализатор страниц
 
 **Анализатор страниц** – это веб-сайт, который анализирует веб-страницы на предмет пригодности для SEO.
+
+
+[Посмотреть на render.com](https://python-project-83-fcn0.onrender.com/)
 
 
 ## Требования к установке
@@ -39,7 +40,7 @@ cd python-project-83
 make install
 ```
 
-4. В проекте имользуется База данных <a href="https://www.postgresql.org/" rel="nofollow">a database PostrgreSQL</a>.
+4. В проекте иcпользуется База данных <a href="https://www.postgresql.org/" rel="nofollow">PostrgreSQL</a>.
 Она должна быть установлена, и сервер запущен.
 
 
