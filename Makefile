@@ -12,9 +12,6 @@ lint:
 make dev:
 	poetry run flask --app page_analyzer:app --debug run --port 8000
 
-start:
-	poetry run gunicorn --workers=5 --bind=0.0.0.0:$(PORT) page_analyzer:app
-
 database: db-create schema-load
 
 db-create:
@@ -25,3 +22,6 @@ schema-load:
 
 connect:
 	psql page_analyzer
+
+start:
+	poetry run gunicorn --workers=5 --bind=0.0.0.0:$(PORT) page_analyzer:app
