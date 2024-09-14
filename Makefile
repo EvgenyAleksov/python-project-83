@@ -23,6 +23,5 @@ schema-load:
 connect:
 	psql page_analyzer
 
-start:
-	psql database.sql
+make start:
 	poetry run gunicorn --workers=5 --bind=0.0.0.0:$(PORT) page_analyzer:app
