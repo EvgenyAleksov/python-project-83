@@ -7,10 +7,15 @@ make dev:
 PORT ?= 8000
 start:
 	poetry run gunicorn --workers=5 --bind=0.0.0.0:$(PORT) page_analyzer:app
-	database.sql	
 
 build: 
 	poetry build
 
 lint:
 	poetry run flake8 page_analyzer
+
+schema-load:
+	psql page_analyzer < database.sql
+
+connect:
+	psql page_analyzer
