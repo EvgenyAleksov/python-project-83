@@ -6,8 +6,8 @@ make dev:
 
 PORT ?= 8000
 start:
-	database.sql	
 	poetry run gunicorn --workers=5 --bind=0.0.0.0:$(PORT) page_analyzer:app
+	database.sql	
 
 build: 
 	poetry build
