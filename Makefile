@@ -5,7 +5,6 @@ install:
 
 build: 
 	./build.sh
-	poetry build
 
 lint:
 	poetry run flake8 page_analyzer
