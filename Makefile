@@ -4,6 +4,7 @@ install:
 	poetry install
 
 build: 
+	./build.sh
 	poetry build
 
 lint:
