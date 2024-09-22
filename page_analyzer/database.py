@@ -7,7 +7,6 @@ from dotenv import load_dotenv
 from flask import request, render_template, flash, redirect, url_for
 from psycopg2.extras import NamedTupleCursor
 from datetime import datetime
-from bs4 import BeautifulSoup
 
 from .url import validate_url, normalize_url
 from .parser import get_seo_data
@@ -119,11 +118,10 @@ def check_ur(id: int):
                                created_at=url.created_at,
                                checks=find_checks(id)), 422
 
-    h1, title, description = get_seo_data(
-        BeautifulSoup(response.text, 'html.parser'))
+    h1, title, description = get_seo_data(response.text)
 
     with get_connection() as connection:
-        with connection.cursor() as cursor:
+        with connection.cursor(cursor_factory=NamedTupleCursor) as cursor:
             cursor.execute("INSERT INTO url_checks (url_id, status_code,\
                             h1, title, description, created_at)\
                             VALUES (%s, %s, %s, %s, %s, %s)",
