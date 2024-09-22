@@ -55,3 +55,13 @@ poetry run flake8 page_analyzer
 ```
 make dev
 ```
+
+На render.com:
+```
+make start
+```
+
+## Для применения миграции к БД
+```
+database.sql
+```
