@@ -8,7 +8,7 @@ from datetime import datetime
 from bs4 import BeautifulSoup
 
 from .database import (get_urls_post, find_all_urls,
-                       get_one_url, find_by_id, find_checks)
+                       find_by_id, find_checks)
 
 
 app = Flask(__name__)

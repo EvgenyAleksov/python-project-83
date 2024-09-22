@@ -69,18 +69,6 @@ def find_all_urls():
     return urls
 
 
-def get_one_url(id: int):
-    url = find_by_id(id)
-
-    if url is None:
-        flash('Такой страницы не существует', 'alert-warning')
-        return redirect(url_for('index'))
-
-    return render_template('show.html', ID=id, name=url.name,
-                           created_at=url.created_at,
-                           checks=find_checks(id))
-
-
 def find_by_id(id: int):
     with get_connected() as connection:
         with connection.cursor(cursor_factory=NamedTupleCursor) as cursor:
