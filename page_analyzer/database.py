@@ -83,7 +83,7 @@ def find_checks(url_id: int):
     url_checks = []
 
     with get_connection() as connection:
-        with connection.cursor() as cursor:
+        with connection.cursor(cursor_factory=NamedTupleCursor) as cursor:
             cursor.execute("SELECT * FROM url_checks WHERE url_id = %s\
                            ORDER BY id DESC",
                            (url_id, ))
@@ -121,7 +121,7 @@ def check_ur(id: int):
     h1, title, description = get_seo_data(response.text)
 
     with get_connection() as connection:
-        with connection.cursor(cursor_factory=NamedTupleCursor) as cursor:
+        with connection.cursor() as cursor:
             cursor.execute("INSERT INTO url_checks (url_id, status_code,\
                             h1, title, description, created_at)\
                             VALUES (%s, %s, %s, %s, %s, %s)",
