@@ -83,7 +83,7 @@ def find_checks(url_id: int):
     url_checks = []
 
     with get_connection() as connection:
-        with connection.cursor(cursor_factory=NamedTupleCursor) as cursor:
+        with connection.cursor() as cursor:
             cursor.execute("SELECT * FROM url_checks WHERE url_id = %s\
                            ORDER BY id DESC",
                            (url_id, ))
