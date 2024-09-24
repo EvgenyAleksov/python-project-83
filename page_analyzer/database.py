@@ -19,7 +19,16 @@ def get_connection():
     return psycopg2.connect(DATABASE_URL)
 
 
-def get_urls_p():
+def connection_decorator(func):
+    def wrapper(*args):
+        with get_connection() as connection:
+            with connection.cursor(cursor_factory=NamedTupleCursor) as cursor:
+                return func(cursor, *args)
+    return wrapper
+
+
+@connection_decorator
+def get_urls_p(cursor):
     url_from_request = request.form.to_dict().get('url', '')
     errors = validate_url(url_from_request)
 
@@ -29,66 +38,58 @@ def get_urls_p():
 
     new_url = normalize_url(url_from_request)
 
-    with get_connection() as connection:
-        with connection.cursor(cursor_factory=NamedTupleCursor) as cursor:
-            try:
-                cursor.execute("INSERT INTO urls (name, created_at)\
-                                VALUES (%s, %s) RETURNING id",
-                               (new_url,
-                                datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
-                url_info = cursor.fetchone()
-                url_id = url_info.id
-                flash('Страница успешно добавлена', 'alert-success')
+    try:
+        cursor.execute("INSERT INTO urls (name, created_at)\
+                        VALUES (%s, %s) RETURNING id",
+                       (new_url,
+                        datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+        url_info = cursor.fetchone()
+        url_id = url_info.id
+        flash('Страница успешно добавлена', 'alert-success')
 
-            except psycopg2.errors.UniqueViolation:
-                url = find_by_name(new_url)
-                url_id = url.id
-                flash('Страница уже существует', 'alert-warning')
+    except psycopg2.errors.UniqueViolation:
+        url = find_by_name(new_url)
+        url_id = url.id
+        flash('Страница уже существует', 'alert-warning')
 
     return redirect(url_for('get_one_url', id=url_id))
 
 
-def find_by_name(name: str):
-    with get_connection() as connection:
-        with connection.cursor(cursor_factory=NamedTupleCursor) as cursor:
-            cursor.execute("SELECT * FROM urls WHERE name = %s", (name, ))
-            return cursor.fetchone()
+@connection_decorator
+def find_by_name(cursor, name: str):
+    cursor.execute("SELECT * FROM urls WHERE name = %s", (name, ))
+    return cursor.fetchone()
 
 
-def find_all_urls():
+@connection_decorator
+def find_all_urls(cursor):
     urls = []
-    with get_connection() as connection:
-        with connection.cursor(cursor_factory=NamedTupleCursor) as cursor:
-            cursor.execute(
-                "SELECT urls.id, urls.name, \
-                MAX(url_checks.created_at) AS check_time, \
-                url_checks.status_code FROM urls \
-                LEFT JOIN url_checks \
-                ON urls.id = url_checks.url_id \
-                GROUP BY urls.id, url_checks.status_code \
-                ORDER BY urls.id DESC;"
-            )
-            urls.extend(cursor.fetchall())
+    cursor.execute(
+        "SELECT urls.id, urls.name, \
+        MAX(url_checks.created_at) AS check_time, \
+        url_checks.status_code FROM urls \
+        LEFT JOIN url_checks \
+        ON urls.id = url_checks.url_id \
+        GROUP BY urls.id, url_checks.status_code \
+        ORDER BY urls.id DESC;"
+    )
+    urls.extend(cursor.fetchall())
     return urls
 
 
-def find_by_id(id: int):
-    with get_connection() as connection:
-        with connection.cursor(cursor_factory=NamedTupleCursor) as cursor:
-            cursor.execute("SELECT * FROM urls WHERE id = %s", (id, ))
-            return cursor.fetchone()
+@connection_decorator
+def find_by_id(cursor, id: int):
+    cursor.execute("SELECT * FROM urls WHERE id = %s", (id, ))
+    return cursor.fetchone()
 
 
-def find_checks(url_id: int):
+@connection_decorator
+def find_checks(cursor, url_id: int):
     url_checks = []
-
-    with get_connection() as connection:
-        with connection.cursor(cursor_factory=NamedTupleCursor) as cursor:
-            cursor.execute("SELECT * FROM url_checks WHERE url_id = %s\
-                           ORDER BY id DESC",
-                           (url_id, ))
-            url_checks.extend(cursor.fetchall())
-
+    cursor.execute("SELECT * FROM url_checks WHERE url_id = %s\
+                    ORDER BY id DESC",
+                   (url_id, ))
+    url_checks.extend(cursor.fetchall())
     return url_checks
 
 
