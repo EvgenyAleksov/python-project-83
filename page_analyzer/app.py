@@ -1,8 +1,14 @@
 import os
+import psycopg2
+import requests
 
-from flask import Flask, render_template
+from flask import Flask, request, render_template, flash, redirect, url_for
+from datetime import datetime
 
-from .database import (get_urls_p, find_all_urls, get_one_ur, check_ur)
+from .database import (use_connection, find_all_urls,
+                       find_by_id, find_by_name, find_checks)
+from .url import validate_url, normalize_url
+from .parser import get_seo_data
 
 
 app = Flask(__name__)
@@ -16,8 +22,32 @@ def get_index():
 
 
 @app.route('/urls', methods=['POST'])
-def get_urls_post():
-    return get_urls_p()
+@use_connection
+def get_urls_post(cursor):
+    url_from_request = request.form.to_dict().get('url', '')
+    errors = validate_url(url_from_request)
+
+    if len(errors) != 0:
+        flash('Некорректный URL', 'alert-danger')
+        return render_template('index.html'), 422
+
+    new_url = normalize_url(url_from_request)
+
+    try:
+        cursor.execute("INSERT INTO urls (name, created_at)\
+                        VALUES (%s, %s) RETURNING id",
+                       (new_url,
+                        datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+        url_info = cursor.fetchone()
+        url_id = url_info.id
+        flash('Страница успешно добавлена', 'alert-success')
+
+    except psycopg2.errors.UniqueViolation:
+        url = find_by_name(new_url)
+        url_id = url.id
+        flash('Страница уже существует', 'alert-warning')
+
+    return redirect(url_for('get_one_url', id=url_id))
 
 
 @app.route('/urls', methods=['GET'])
@@ -28,9 +58,45 @@ def get_urls():
 
 @app.route('/urls/<int:id>', methods=['GET'])
 def get_one_url(id: int):
-    return get_one_ur(id)
+    url = find_by_id(id)
+
+    if url is None:
+        flash('Такой страницы не существует', 'alert-warning')
+        return redirect(url_for('index'))
+
+    return render_template('show.html', ID=id, name=url.name,
+                           created_at=url.created_at,
+                           checks=find_checks(id))
 
 
 @app.route('/urls/<int:id>/checks', methods=['POST'])
 def check_url(id: int):
-    return check_ur(id)
+    url = find_by_id(id)
+
+    try:
+        with requests.get(url.name) as response:
+            status_code = response.status_code
+            response.raise_for_status()
+
+    except requests.exceptions.RequestException:
+        flash('Произошла ошибка при проверке', 'alert-danger')
+        return render_template('show.html', ID=id, name=url.name,
+                               created_at=url.created_at,
+                               checks=find_checks(id)), 422
+
+    h1, title, description = get_seo_data(response.text)
+
+    add_check(id, status_code, h1, title, description)
+
+    flash('Страница успешно проверена', 'alert-success')
+
+    return redirect(url_for('get_one_url', id=id))
+
+
+@use_connection
+def add_check(cursor, id, status_code, h1, title, description):
+    cursor.execute("INSERT INTO url_checks (url_id, status_code,\
+                    h1, title, description, created_at)\
+                    VALUES (%s, %s, %s, %s, %s, %s)",
+                   (id, status_code, h1, title, description,
+                    datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
