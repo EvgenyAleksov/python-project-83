@@ -26,6 +26,7 @@ def get_index():
 def get_urls_post(cursor):
     url_from_request = request.form.to_dict().get('url', '')
     errors = validate_url(url_from_request)
+    url_info = ''
 
     if len(errors) != 0:
         flash('Некорректный URL', 'alert-danger')
@@ -39,14 +40,16 @@ def get_urls_post(cursor):
                        (new_url,
                         datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
 
+        url_info = cursor.fetchone()
+
     except psycopg2.errors.UniqueViolation:
         url = find_by_name(new_url)
         url_id = url.id
         flash('Страница уже существует', 'alert-warning')
 
-    url_info = cursor.fetchone()
-    url_id = url_info.id
-    flash('Страница успешно добавлена', 'alert-success')
+    if url_info:
+        url_id = url_info.id
+        flash('Страница успешно добавлена', 'alert-success')
     return redirect(url_for('get_one_url', id=url_id))
 
 
