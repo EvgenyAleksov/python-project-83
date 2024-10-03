@@ -38,13 +38,13 @@ def get_urls_post(cursor):
                         VALUES (%s, %s) RETURNING id",
                        (new_url,
                         datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
-        url_info = cursor.fetchone()
 
     except psycopg2.errors.UniqueViolation:
         url = find_by_name(new_url)
         url_id = url.id
         flash('Страница уже существует', 'alert-warning')
 
+    url_info = cursor.fetchone()
     url_id = url_info.id
     flash('Страница успешно добавлена', 'alert-success')
     return redirect(url_for('get_one_url', id=url_id))
@@ -85,9 +85,6 @@ def check_url(id: int):
                                checks=find_checks(id)), 422
 
     h1, title, description = get_seo_data(response.text)
-
     add_check(id, status_code, h1, title, description)
-
     flash('Страница успешно проверена', 'alert-success')
-
     return redirect(url_for('get_one_url', id=id))
