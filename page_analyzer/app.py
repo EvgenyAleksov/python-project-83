@@ -5,8 +5,8 @@ import requests
 from flask import Flask, request, render_template, flash, redirect, url_for
 from datetime import datetime
 
-from .database import (use_connection, find_all_urls,
-                       find_by_id, find_by_name, find_checks)
+from .database import (use_connection, find_all_urls, find_by_id,
+                       find_by_name, add_check, find_checks)
 from .url import validate_url, normalize_url
 from .parser import get_seo_data
 
@@ -39,14 +39,14 @@ def get_urls_post(cursor):
                        (new_url,
                         datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
         url_info = cursor.fetchone()
-        url_id = url_info.id
-        flash('Страница успешно добавлена', 'alert-success')
 
     except psycopg2.errors.UniqueViolation:
         url = find_by_name(new_url)
         url_id = url.id
         flash('Страница уже существует', 'alert-warning')
 
+    url_id = url_info.id
+    flash('Страница успешно добавлена', 'alert-success')
     return redirect(url_for('get_one_url', id=url_id))
 
 
@@ -91,12 +91,3 @@ def check_url(id: int):
     flash('Страница успешно проверена', 'alert-success')
 
     return redirect(url_for('get_one_url', id=id))
-
-
-@use_connection
-def add_check(cursor, id, status_code, h1, title, description):
-    cursor.execute("INSERT INTO url_checks (url_id, status_code,\
-                    h1, title, description, created_at)\
-                    VALUES (%s, %s, %s, %s, %s, %s)",
-                   (id, status_code, h1, title, description,
-                    datetime.now().strftime("%Y-%m-%d %H:%M:%S")))

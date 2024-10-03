@@ -3,6 +3,7 @@ import psycopg2
 
 from dotenv import load_dotenv
 from psycopg2.extras import NamedTupleCursor
+from datetime import datetime
 
 
 load_dotenv()
@@ -57,3 +58,12 @@ def find_checks(cursor, url_id: int):
                    (url_id, ))
     url_checks.extend(cursor.fetchall())
     return url_checks
+
+
+@use_connection
+def add_check(cursor, id, status_code, h1, title, description):
+    cursor.execute("INSERT INTO url_checks (url_id, status_code,\
+                    h1, title, description, created_at)\
+                    VALUES (%s, %s, %s, %s, %s, %s)",
+                   (id, status_code, h1, title, description,
+                    datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
