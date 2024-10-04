@@ -67,3 +67,10 @@ def add_check(cursor, id, status_code, h1, title, description):
                     VALUES (%s, %s, %s, %s, %s, %s)",
                    (id, status_code, h1, title, description,
                     datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+
+
+def add_url(cursor, new_url):
+    cursor.execute("INSERT INTO urls (name, created_at)\
+                    VALUES (%s, %s) RETURNING id",
+                   (new_url,
+                    datetime.now().strftime("%Y-%m-%d %H:%M:%S")))

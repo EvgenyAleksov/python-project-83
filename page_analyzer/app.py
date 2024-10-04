@@ -3,10 +3,9 @@ import psycopg2
 import requests
 
 from flask import Flask, request, render_template, flash, redirect, url_for
-from datetime import datetime
 
 from .database import (use_connection, find_all_urls, find_by_id,
-                       find_by_name, add_check, find_checks)
+                       find_by_name, add_check, find_checks, add_url)
 from .url import validate_url, normalize_url
 from .parser import get_seo_data
 
@@ -35,11 +34,7 @@ def get_urls_post(cursor):
     new_url = normalize_url(url_from_request)
 
     try:
-        cursor.execute("INSERT INTO urls (name, created_at)\
-                        VALUES (%s, %s) RETURNING id",
-                       (new_url,
-                        datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
-
+        add_url(cursor, new_url)
         url_info = cursor.fetchone()
 
     except psycopg2.errors.UniqueViolation:
